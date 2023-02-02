@@ -87,14 +87,9 @@ public class FinalAuditDataServiceImpl implements FinalAuditDataService {
             final List<List<FinalAuditData>> splittedList = Lists.partition(records, 10000);
             splittedList.forEach((rec) -> {
                         index.set(index.get() + 10000);
-
                         repository.saveAllAndFlush(rec);
                         repository.flush();
-                        if (records.size() < index.get()) {
-                            System.out.println("Processed records so far :" + index.get());
-                        } else {
-                            System.out.println("Processed records so far :" + records.size());
-                        }
+                        System.out.println("Processed records so far :" + index.get());
                     }
             );
             System.out.println("Done !, Enjoy querying ... ");
