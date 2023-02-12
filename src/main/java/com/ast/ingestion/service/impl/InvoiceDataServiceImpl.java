@@ -1,11 +1,14 @@
 package com.ast.ingestion.service.impl;
 
-import com.ast.ingestion.dao.FinalAuditDataRepository;
-import com.ast.ingestion.entity.FinalAuditData;
-import com.ast.ingestion.service.FinalAuditDataService;
+import com.ast.ingestion.dao.InvoiceDataRepository;
+import com.ast.ingestion.dto.InvoiceDataDTO;
+import com.ast.ingestion.entity.InvoiceData;
+import com.ast.ingestion.mapper.InvoiceDataMapper;
+import com.ast.ingestion.service.InvoiceDataService;
 import com.google.common.collect.Lists;
 import com.opencsv.bean.CsvToBean;
 import com.opencsv.bean.CsvToBeanBuilder;
+import org.mapstruct.factory.Mappers;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
@@ -22,21 +25,21 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 @Service
 @Transactional
-public class FinalAuditDataServiceImpl implements FinalAuditDataService {
-    private final FinalAuditDataRepository repository;
+public class InvoiceDataServiceImpl implements InvoiceDataService {
+    private final InvoiceDataRepository repository;
 
-    public FinalAuditDataServiceImpl(FinalAuditDataRepository repository) {
+    public InvoiceDataServiceImpl(InvoiceDataRepository repository) {
         this.repository = repository;
     }
 
     @Override
-    public FinalAuditData save(FinalAuditData entity) {
+    public InvoiceData save(InvoiceData entity) {
         return repository.save(entity);
     }
 
     @Override
-    public List<FinalAuditData> save(List<FinalAuditData> entities) {
-        return (List<FinalAuditData>) repository.saveAll(entities);
+    public List<InvoiceData> save(List<InvoiceData> entities) {
+        return (List<InvoiceData>) repository.saveAll(entities);
     }
 
     @Override
@@ -45,25 +48,25 @@ public class FinalAuditDataServiceImpl implements FinalAuditDataService {
     }
 
     @Override
-    public Optional<FinalAuditData> findById(Integer id) {
+    public Optional<InvoiceData> findById(Integer id) {
         return repository.findById(id);
     }
 
     @Override
-    public List<FinalAuditData> findAll() {
-        return (List<FinalAuditData>) repository.findAll();
+    public List<InvoiceData> findAll() {
+        return (List<InvoiceData>) repository.findAll();
     }
 
     @Override
-    public Page<FinalAuditData> findAll(Pageable pageable) {
-        Page<FinalAuditData> entityPage = repository.findAll(pageable);
-        List<FinalAuditData> entities = entityPage.getContent();
+    public Page<InvoiceData> findAll(Pageable pageable) {
+        Page<InvoiceData> entityPage = repository.findAll(pageable);
+        List<InvoiceData> entities = entityPage.getContent();
         return new PageImpl<>(entities, pageable, entityPage.getTotalElements());
     }
 
     @Override
-    public FinalAuditData update(FinalAuditData entity, Integer id) {
-        Optional<FinalAuditData> optional = findById(id);
+    public InvoiceData update(InvoiceData entity, Integer id) {
+        Optional<InvoiceData> optional = findById(id);
         if (optional.isPresent()) {
             return save(entity);
         }
@@ -74,17 +77,17 @@ public class FinalAuditDataServiceImpl implements FinalAuditDataService {
     public void processCsv(MultipartFile file) {
         try (Reader reader = new BufferedReader(new InputStreamReader(file.getInputStream()))) {
             // create csv bean reader
-            CsvToBean<FinalAuditData> csvToBean = new CsvToBeanBuilder(reader)
-                    .withType(FinalAuditData.class)
+            CsvToBean<InvoiceData> csvToBean = new CsvToBeanBuilder(reader)
+                    .withType(InvoiceData.class)
                     .withIgnoreLeadingWhiteSpace(true)
                     .build();
 
             AtomicInteger index = new AtomicInteger();
             // convert `CsvToBean` object to list of users
-            List<FinalAuditData> records = csvToBean.parse();
+            List<InvoiceData> records = csvToBean.parse();
             System.out.println("Total Records in File " + records.size());
 
-            final List<List<FinalAuditData>> splittedList = Lists.partition(records, 10000);
+            final List<List<InvoiceData>> splittedList = Lists.partition(records, 10000);
             splittedList.forEach((rec) -> {
                         index.set(index.get() + 10000);
                         repository.saveAllAndFlush(rec);
